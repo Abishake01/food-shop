@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
-import { getOrders, saveOrder } from '../utils/storage';
+import { getOrders, updateTokenStatus } from '../utils/storage';
 import { TOKEN_STATUS } from '../utils/constants';
 import { theme } from '../styles/theme';
 
@@ -33,15 +33,7 @@ const TokenScreen = () => {
       : TOKEN_STATUS.PREPARING;
     
     setStatus(newStatus);
-    
-    // Update order status in storage
-    const orders = await getOrders();
-    const orderIndex = orders.findIndex(o => o.tokenNumber === tokenNumber);
-    if (orderIndex !== -1) {
-      orders[orderIndex].status = newStatus;
-      // Note: In a real app, you'd want a proper update function
-      // For now, we'll just update the local state
-    }
+    await updateTokenStatus(tokenNumber, newStatus);
   };
 
   const formatDate = (ts) => {

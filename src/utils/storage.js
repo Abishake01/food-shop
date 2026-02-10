@@ -72,3 +72,33 @@ export const getOrderById = async (orderId) => {
   }
 };
 
+// Update order status
+export const updateOrderStatus = async (orderId, status) => {
+  try {
+    const orders = await getOrders();
+    const updatedOrders = orders.map(order =>
+      order.id === orderId ? { ...order, status } : order
+    );
+    await AsyncStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updatedOrders));
+    return true;
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return false;
+  }
+};
+
+// Update token status by token number
+export const updateTokenStatus = async (tokenNumber, status) => {
+  try {
+    const orders = await getOrders();
+    const updatedOrders = orders.map(order =>
+      order.tokenNumber === tokenNumber ? { ...order, status } : order
+    );
+    await AsyncStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updatedOrders));
+    return true;
+  } catch (error) {
+    console.error('Error updating token status:', error);
+    return false;
+  }
+};
+
