@@ -28,34 +28,31 @@ const HomeScreen = () => {
     setFoodItems(items);
   };
 
-  const getCartItem = (foodId) => {
-    return cart.find(item => item.foodId === foodId);
-  };
-
-  const addToCart = (item) => {
+  const addToCart = useCallback((item) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const existingItem = getCartItem(item.id);
-    
-    if (existingItem) {
-      setCart(cart.map(cartItem =>
-        cartItem.foodId === item.id
-          ? { ...cartItem, quantity: cartItem.quantity + 1 }
-          : cartItem
-      ));
-    } else {
-      setCart([...cart, {
-        foodId: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: 1,
-      }]);
-    }
-  };
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.foodId === item.id);
+      if (existingItem) {
+        return prevCart.map(cartItem =>
+          cartItem.foodId === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevCart, {
+          foodId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1,
+        }];
+      }
+    });
+  }, []);
 
-  const removeFromCart = (foodId) => {
+  const removeFromCart = useCallback((foodId) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setCart(cart.filter(item => item.foodId !== foodId));
-  };
+    setCart(prevCart => prevCart.filter(item => item.foodId !== foodId));
+  }, []);
 
   const generateOrder = async (type) => {
     if (cart.length === 0) return;
@@ -107,7 +104,7 @@ const HomeScreen = () => {
   const enabledItems = foodItems.filter(item => item.enabled);
 
   const renderFoodCard = useCallback(({ item }) => {
-    const cartItem = getCartItem(item.id);
+    const cartItem = cart.find(cartItem => cartItem.foodId === item.id);
     const quantity = cartItem ? cartItem.quantity : 0;
 
     return (
@@ -121,7 +118,7 @@ const HomeScreen = () => {
         />
       </View>
     );
-  }, [cart]);
+  }, [cart, addToCart, removeFromCart]);
 
   return (
     <View style={styles.container}>
